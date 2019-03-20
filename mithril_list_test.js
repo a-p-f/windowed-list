@@ -39,10 +39,12 @@ function img_url(index) {
 styles.write(`
 	.Row {
 		display: flex;
+		align-items: center;
 		border-bottom: 1px solid #AAA;
 		padding: 10px
 	}
 `);
+const button_style = 'margin: 0 2rem;';
 const Row = {
 	oninit: vnode => {
 		console.log('Initialized');
@@ -51,6 +53,7 @@ const Row = {
 		const {index} = vnode.attrs;
 		return m('div.Row', 
 			m('img', {src: img_url(index)}),
+			m('button', {style: button_style}, 'Focus Test'),
 			m('p', day_string(index)),
 		);
 	},
