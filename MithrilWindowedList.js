@@ -1,5 +1,34 @@
 import WindowedListWatcher from './WindowedListWatcher.js';
 
+function range(x) {
+	return [...Array(x).keys()];
+}
+function get_simple_render_items(render_count, start_index) {
+	return range(render_count).map(index => {
+		const data_index = index + start_index;
+		return [data_index, data_index];
+	});
+}
+function get_shift_render_items(render_count, start_index) {
+	return range(render_count).map(index => {
+		return [index, index+start_index];
+	});
+}
+function get_cycle_render_items(render_count, start_index) {
+	const items = [];
+	const end_index = start_index + render_count - 1;
+	for (let data_index = start_index; data_index <= end_index; data_index++) {
+		const key = data_index % render_count; 
+		items[key] = [key, data_index];
+	}
+	return items;
+}
+const get_render_items = {
+	simple: get_simple_render_items,
+	shift: get_shift_render_items,
+	cycle: get_cycle_render_items,
+};
+
 /*
 	This function returns a mithril component.
 	We don't know how you're loading mithril, so you have to pass
@@ -14,6 +43,12 @@ import WindowedListWatcher from './WindowedListWatcher.js';
 			a mithril component which accepts a single attr: index
 			this component will be rendered inside a wrapper div,
 			which is absolutely positioned and has a defined height
+		mode
+			string: simple|shift|cycle
+			optional - defaults to cycle
+
+			TODO - explain
+
 		buffer 
 			optional - defaults 1
 			number of rows above and below viewport to render
@@ -25,13 +60,13 @@ import WindowedListWatcher from './WindowedListWatcher.js';
 export default function(m) {
 	return function(initial_vnode) {
 		let list_watcher = null;
-		let rows_to_render = [];
-
+		let render_items = [];
 		return {
 			oncreate: vnode => {
 				const {
 					row_count, 
-					row_height,  
+					row_height,
+					mode='cycle',
 					buffer=1,
 					initial_row=null,
 				} = vnode.attrs;
@@ -47,8 +82,8 @@ export default function(m) {
 					row_count: row_count,
 					row_height: row_height,
 					buffer: buffer,
-					render: (new_rows, old_rows) => {
-						rows_to_render = new_rows;
+					render: (render_count, start_index) => {
+						render_items = get_render_items[mode](render_count, start_index);
 						m.redraw();
 					},
 				});
@@ -62,7 +97,7 @@ export default function(m) {
 					position: relative; 
 					height: ${row_count*row_height}px;
 				`;
-				const rows = rows_to_render.map((data_index, index) => {
+				const rows = render_items.map(([key, data_index]) => {
 					const row = m(row_component, {index: data_index});
 					const wrapper_style = `
 						position: absolute;
@@ -71,7 +106,7 @@ export default function(m) {
 						top: ${row_height*data_index}px;
 						height: ${row_height};
 					`;
-					return m('div', {style: wrapper_style, key: index}, row);
+					return m('div', {style: wrapper_style, key: key}, row);
 				});
 				return m('div', {style: list_style}, rows);
 			}

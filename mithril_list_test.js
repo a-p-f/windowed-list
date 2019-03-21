@@ -64,4 +64,5 @@ m.mount(document.body, {view: vnode => m(WindowedList, {
 	row_height: row_height,
 	row_component: Row,
 	initial_row: row_count/2,
+	mode: 'shift',
 })});

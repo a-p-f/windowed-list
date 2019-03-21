@@ -24,9 +24,8 @@ function get_start_index(windowed_list_config) {
 	start_index = Math.min(start_index, row_count-render_count);
 	return start_index;
 }
-function resize(windowed_list_config) {
-	const {render_count, previously_rendered} = windowed_list_config;
-
+function on_resize(windowed_list_config) {
+	const {render_count} = windowed_list_config;
 	const new_render_count = get_page_size(windowed_list_config);
 
 	if (new_render_count === render_count) {
@@ -34,26 +33,22 @@ function resize(windowed_list_config) {
 	}
 
 	windowed_list_config.render_count = new_render_count;
-	render_rows(windowed_list_config);
+	on_update(windowed_list_config);
 }
-function render_rows(windowed_list_config) {
-	const {previously_rendered, render_count, render, first_row_index} = windowed_list_config;
+function on_scroll(windowed_list_config) {
+	const {render_count, render, start_index} = windowed_list_config;
 	const new_start = get_start_index(windowed_list_config);
 
-	if (render_count === previously_rendered.length && new_start === first_row_index) {
+	if (new_start === start_index) {
 		return;
 	}
 
-
-	const end_index = new_start + render_count - 1;
-
-	const rows_to_render = [];
-	for (let i = new_start; i <= end_index; i++) {
-		rows_to_render[i % render_count] = i;
-	}
-	render(rows_to_render, previously_rendered);
-	windowed_list_config.previously_rendered = rows_to_render;
-	windowed_list_config.first_row_index = new_start;
+	windowed_list_config.start_index = new_start;
+	on_update(windowed_list_config);
+}
+function on_update(windowed_list_config) {
+	const {render_count, render, start_index} = windowed_list_config;
+	render(render_count, start_index);
 }
 export default function(options) {
 	const {
@@ -70,16 +65,14 @@ export default function(options) {
 		row_count: row_count,
 		row_height: row_height,
 		buffer: buffer,
-		render_count: 0,
-		first_row_index: 0,
-		previously_rendered: [],
 	};
+	config.render_count = get_page_size(config);
+	config.start_index = get_start_index(config);
+	on_update(config);
 
-	resize(config);
-
-	const scroll_listener = render_rows.bind(null, config);
+	const scroll_listener = on_scroll.bind(null, config);
 	window.addEventListener('scroll', scroll_listener, listener_options);
-	const resize_listener = resize.bind(null, config);
+	const resize_listener = on_resize.bind(null, config);
 	window.addEventListener('resize', resize_listener, listener_options);
 
 	return {
