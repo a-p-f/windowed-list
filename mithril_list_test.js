@@ -1,8 +1,8 @@
-import MithrilWindowedList from './MithrilWindowedList.js';
+import MithrilWindowedList, {prepare_mithril_windowed_list} from './MithrilWindowedList.js';
 import * as styles from './styles.js';
 
 // use mithril from global scope
-const WindowedList = MithrilWindowedList(m);
+prepare_mithril_windowed_list(m);
 
 const row_count = 100000;
 const row_height = 72;
@@ -59,10 +59,10 @@ const Row = {
 	},
 }
 
-m.mount(document.body, {view: vnode => m(WindowedList, {
+m.mount(document.body, {view: vnode => m(MithrilWindowedList, {
 	row_count: row_count,
 	row_height: row_height,
 	row_component: Row,
 	initial_row: row_count/2,
-	mode: 'shift',
+	mode: 'cycle',
 })});
