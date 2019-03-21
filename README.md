@@ -1,4 +1,17 @@
 # WindowedList
 
-WindowedList is a new take on infinite scroll/lazy loading. It works a lot like UITableView in iOS. WindowedList sets the height of the list element so that it is tall enough to contain all of your rows, but only renders the rows which are within the viewport. This method eliminates scoll jank entirely, unlike other infinite scrolling libraries I've seen.
+WindowedList is a new take on infinite scroll/lazy loading. It fixes the container's height to be tall enough to contain all rows, and positions the rendered rows absolutely inside the container. This approach completely eliminates scroll jank.
+
+## Demo
+
+## Limitations
+
+## Code Structure
+
+## Modes of Operation
+
+## TODO
+
+
+
 
