@@ -82,7 +82,7 @@ export default function(initial_vnode) {
 
 			if (initial_row !== null) {
 				// TODO - support other scroll containers
-				window.scrollTo(0, row_height*row_count/2);
+				window.scrollTo(0, row_height*initial_row);
 			}
 
 			list_watcher = WindowedListWatcher({
